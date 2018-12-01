@@ -2,7 +2,7 @@ module ChainRules
 
 using Base.Broadcast: materialize, materialize!, broadcasted
 
-import NaNMath, SpecialFunctions, LinearAlgebra, LinearAlgebra.BLAS
+import Cassette, NaNMath, SpecialFunctions, LinearAlgebra, LinearAlgebra.BLAS
 
 include("chain.jl")
 include("rules.jl")
