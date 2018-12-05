@@ -25,15 +25,18 @@ end
 
 # det
 
-function frule(::typeof(det), x)
-    Ω, m = det(x), @memoize(inv(x))
-    return Ω, (Ω̇, ẋ) -> add(Ω̇, mul(Ω, tr(materialize(mul(m, ẋ)))))
-end
+# is this enough info?
+@rule(det(x), mul(Ω, @memoize(inv(x))))
 
-function rrule(::typeof(det), x)
-    Ω, m = det(x), @memoize(inv(x)')
-    return Ω, (x̄, Ω̄) -> add(x̄, mul(Ω, Ω̄, m))
-end
+# function frule(::typeof(det), x)
+#     Ω, m = det(x), @memoize(inv(x))
+#     return Ω, (Ω̇, ẋ) -> add(Ω̇, mul(Ω, tr(materialize(mul(m, ẋ)))))
+# end
+#
+# function rrule(::typeof(det), x)
+#     Ω, m = det(x), @memoize(inv(x)')
+#     return Ω, (x̄, Ω̄) -> add(x̄, mul(Ω, Ω̄, m))
+# end
 
 # logdet
 

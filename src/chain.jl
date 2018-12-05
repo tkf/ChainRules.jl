@@ -1,5 +1,15 @@
 # TODO: turn various comments in this file into docstrings
 
+#=
+
+Ricci calculus rules:
+
+- replace `One` with a seed in `δ`-form.
+
+
+
+=#
+
 #####
 ##### `AbstractChainable`
 #####
@@ -87,15 +97,15 @@ Reverse-Mode:
     # expands to:
     (x̄₁, ȳ₁, ȳ₂) -> add(x̄₁, mul(@thunk(adjoint(∂y₁_∂x₁)), ȳ₁), mul(@thunk(adjoint(∂y₂_∂x₁)), ȳ₂))
     (x̄₂, ȳ₁, ȳ₂) -> add(x̄₂, mul(@thunk(adjoint(∂y₁_∂x₂)), ȳ₁), mul(@thunk(adjoint(∂y₂_∂x₂)), ȳ₂))
+
+Some notation used here:
+- `Δᵢ`: a seed (perturbation/sensitivity), i.e. the result of a chain rule evaluation
+- `∂ᵢ`: a partial derivative to be multiplied by `Δᵢ` as part of chain rule evaluation
 =#
 macro chain(∂s...)
-    δs = [Symbol(string(:δ, i)) for i in 1:length(∂s)]
-    Δs = Any[]
-    for i in 1:length(∂s)
-        ∂ = esc(∂s[i])
-        push!(Δs, :(mul(@thunk($∂), $(δs[i]))))
-    end
-    return :((δ₀, $(δs...)) -> add(δ₀, $(Δs...)))
+    Δs = [Symbol(string(:Δ, i)) for i in 1:length(∂s)]
+    ∂Δs = [:(mul(@thunk($(esc(∂s[i]))), $(Δs[i]))) for i in 1:length(∂s)]
+    return :((Δ₀, $(Δs...)) -> add(Δ₀, $(∂Δs...)))
 end
 
 #####
@@ -126,7 +136,7 @@ macro memoize(body)
     return :(Memoize(@thunk($(esc(body)))))
 end
 
-function (m::Memoize{F,R})()::R where {F, R}
+function (m::Memoize{F,R})()::R where {F,R}
     if !isassigned(m.ret)
         m.ret[] = m.thunk()
     end
