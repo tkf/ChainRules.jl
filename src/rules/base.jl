@@ -2,7 +2,7 @@
 ##### `@rule`s
 #####
 
-@rule(abs2(x), x + x)
+@rule(abs2(x), wirt(x', x))
 @rule(log(x), inv(x))
 @rule(log10(x), inv(x) / log(10f0))
 @rule(log2(x), inv(x) / log(2f0))
@@ -38,8 +38,8 @@
 @rule(acoth(x), inv(1 - x^2))
 @rule(deg2rad(x), π / 180f0)
 @rule(rad2deg(x), 180f0 / π)
-@rule(conj(x), Wirtinger(Zero(), One()))
-@rule(adjoint(x), Wirtinger(Zero(), One()))
+@rule(conj(x), wirt(Zero(), One()))
+@rule(adjoint(x), wirt(Zero(), One()))
 @rule(transpose(x), One())
 @rule(abs(x), sign(x))
 @rule(rem2pi(x, r), (One(), DNE()))
@@ -82,9 +82,10 @@
 
 # product rule requires special care for arguments where `mul` is non-commutative
 
-frule(::typeof(*), x, y) = x * y, (ż, ẋ, ẏ) -> add(ż, mul(ẋ, y), mul(x, ẏ))
+frule(::typeof(*), x, y) = x * y, Chain((ż, ẋ, ẏ) -> ż + ẋ * y + x * ẏ)
 
-rrule(::typeof(*), x, y) = x * y, ((x̄, z̄) -> add(x̄, mul(z̄, y')), (ȳ, z̄) -> add(ȳ, mul(x', z̄)))
+rrule(::typeof(*), x, y) = x * y, (Chain((x̄, z̄) -> x̄ + z̄ * y'),
+                                   Chain((ȳ, z̄) -> ȳ + x' * z̄))
 
 #=
 TODO: This partial derivative extraction should be doable without the extra
