@@ -1,25 +1,39 @@
 # TODO: more tests!
 
 using ChainRules, Test
-using ChainRules: One, Zero, MaterializeInto, rrule, frule, materialize, cast
+using ChainRules: One, Zero, Accumulated, rrule, frule, extern, cast
+
+function test_harness(f, inputs)
+    outputs = f(inputs...)
+    test_forward(outputs, f, inputs)
+    test_reverse(outputs, f, inputs)
+end
+
+function test_forward(outputs, f, inputs)
+    
+end
+
+function test_reverse(outputs, f, inputs)
+
+end
 
 #####
 ##### `*(x, y)`
 #####
 
-function test_adjoint!(x̄, dx, ȳ, partial)
+function test_reverse!(x̄, dx, ȳ, partial)
     x̄_old = copy(x̄)
     x̄_zeros = zero.(x̄)
 
-    @test materialize(dx(Zero(), ȳ)) == materialize(dx(x̄_zeros, ȳ))
-    @test materialize(dx(x̄, ȳ)) == (x̄ .+ partial)
+    @test extern(dx(Zero(), ȳ)) == extern(dx(x̄_zeros, ȳ))
+    @test extern(dx(x̄, ȳ)) == (x̄ .+ partial)
     @test x̄ == x̄_old
 
-    dx(MaterializeInto(x̄), ȳ)
+    dx(Accumulated(x̄), ȳ)
     @test x̄ == (x̄_old .+ partial)
     x̄ .= x̄_old
 
-    dx(MaterializeInto(x̄, false), ȳ)
+    dx(Accumulated(x̄, false), ȳ)
     @test x̄ == partial
     x̄ .= x̄_old
 
@@ -33,11 +47,11 @@ z, (dx, dy) = rrule(*, x, y)
 
 z̄ = rand(3, 5)
 
-@test dx(Zero(), z̄) == materialize(dx(zeros(3, 2), z̄))
-@test dy(Zero(), z̄) == materialize(dy(zeros(2, 5), z̄))
+@test dx(Zero(), z̄) == extern(dx(zeros(3, 2), z̄))
+@test dy(Zero(), z̄) == extern(dy(zeros(2, 5), z̄))
 
-test_adjoint!(rand(3, 2), dx, z̄, z̄ * y')
-test_adjoint!(rand(2, 5), dy, z̄, x' * z̄)
+test_reverse!(rand(3, 2), dx, z̄, z̄ * y')
+test_reverse!(rand(2, 5), dy, z̄, x' * z̄)
 
 #####
 ##### `sin.(x)`
