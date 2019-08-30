@@ -20,5 +20,5 @@ end
 
 function rrule(::typeof(broadcast), f, x)
     values, derivs = _cast_diff(f, x)
-    return values, (DNERule(), Rule(ΔΩ -> ΔΩ * cast(derivs)))
+    return values, (DoesNotExistRule(), Rule(ΔΩ -> ΔΩ * cast(derivs)))
 end

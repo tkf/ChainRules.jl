@@ -3,15 +3,15 @@
     A = randn(rng, 4, 5)
     B, (dA, dd) = rrule(reshape, A, (5, 4))
     @test B == reshape(A, (5, 4))
-    @test dd isa ChainRules.DNERule
+    @test dd isa ChainRules.DoesNotExistRule
     Ȳ = randn(rng, 4, 5)
     Ā = dA(Ȳ)
     @test Ā == reshape(Ȳ, (5, 4))
 
     B, (dA, dd1, dd2) = rrule(reshape, A, 5, 4)
     @test B == reshape(A, 5, 4)
-    @test dd1 isa ChainRules.DNERule
-    @test dd2 isa ChainRules.DNERule
+    @test dd1 isa ChainRules.DoesNotExistRule
+    @test dd2 isa ChainRules.DoesNotExistRule
     Ȳ = randn(rng, 4, 5)
     Ā = dA(Ȳ)
     @test Ā == reshape(Ȳ, 5, 4)
@@ -46,11 +46,11 @@ end
 @testset "fill" begin
     y, (dv, dd) = rrule(fill, 44, 4)
     @test y == [44, 44, 44, 44]
-    @test dd isa ChainRules.DNERule
+    @test dd isa ChainRules.DoesNotExistRule
     @test dv(ones(Int, 4)) == 4
 
     y, (dv, dd) = rrule(fill, 2.0, (3, 3, 3))
     @test y == fill(2.0, (3, 3, 3))
-    @test dd isa ChainRules.DNERule
+    @test dd isa ChainRules.DoesNotExistRule
     @test dv(ones(3, 3, 3)) ≈ 27.0
 end

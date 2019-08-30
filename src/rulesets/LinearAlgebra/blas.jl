@@ -21,7 +21,7 @@ function rrule(::typeof(BLAS.dot), n, X, incx, Y, incy)
     Ω = BLAS.dot(n, X, incx, Y, incy)
     ∂X = ΔΩ -> scal!(n, ΔΩ, blascopy!(n, Y, incy, _zeros(X), incx), incx)
     ∂Y = ΔΩ -> scal!(n, ΔΩ, blascopy!(n, X, incx, _zeros(Y), incy), incy)
-    return Ω, (DNERule(), _rule_via(∂X), DNERule(), _rule_via(∂Y), DNERule())
+    return Ω, (DoesNotExistRule(), _rule_via(∂X), DoesNotExistRule(), _rule_via(∂Y), DoesNotExistRule())
 end
 
 #####
@@ -41,7 +41,7 @@ end
 function rrule(::typeof(BLAS.nrm2), n, X, incx)
     Ω = BLAS.nrm2(n, X, incx)
     ∂X = ΔΩ -> scal!(n, ΔΩ / Ω, blascopy!(n, X, incx, _zeros(X), incx), incx)
-    return Ω, (DNERule(), _rule_via(∂X), DNERule())
+    return Ω, (DoesNotExistRule(), _rule_via(∂X), DoesNotExistRule())
 end
 
 #####
@@ -55,7 +55,7 @@ rrule(::typeof(BLAS.asum), x) = (BLAS.asum(x), Rule(ΔΩ -> ΔΩ * cast(sign, x)
 function rrule(::typeof(BLAS.asum), n, X, incx)
     Ω = BLAS.asum(n, X, incx)
     ∂X = ΔΩ -> scal!(n, ΔΩ, blascopy!(n, sign.(X), incx, _zeros(X), incx), incx)
-    return Ω, (DNERule(), _rule_via(∂X), DNERule())
+    return Ω, (DoesNotExistRule(), _rule_via(∂X), DoesNotExistRule())
 end
 
 #####
@@ -72,7 +72,7 @@ function rrule(::typeof(gemv), tA::Char, α::T, A::AbstractMatrix{T},
         ∂A = Rule(ȳ -> α * x * ȳ', (Ā, ȳ) -> ger!(α, x, ȳ, Ā))
         ∂x = Rule(ȳ -> gemv('N', α, A, ȳ), (x̄, ȳ) -> gemv!('N', α, A, ȳ, one(T), x̄))
     end
-    return y, (DNERule(), Rule(ȳ -> dot(ȳ, y) / α), ∂A, ∂x)
+    return y, (DoesNotExistRule(), Rule(ȳ -> dot(ȳ, y) / α), ∂A, ∂x)
 end
 
 function rrule(::typeof(gemv), tA::Char, A::AbstractMatrix{T},
@@ -114,7 +114,7 @@ function rrule(::typeof(gemm), tA::Char, tB::Char, α::T,
                       (B̄, C̄) -> gemm!('T', 'T', α, C̄, A, β, B̄))
         end
     end
-    return C, (DNERule(), DNERule(), Rule(C̄ -> dot(C̄, C) / α), ∂A, ∂B)
+    return C, (DoesNotExistRule(), DoesNotExistRule(), Rule(C̄ -> dot(C̄, C) / α), ∂A, ∂B)
 end
 
 function rrule(::typeof(gemm), tA::Char, tB::Char,

@@ -8,7 +8,7 @@ using ChainRules: level2partition, level3partition, chol_blocked_rev, chol_unblo
             F, dX = rrule(svd, X)
             for p in [:U, :S, :V]
                 Y, (dF, dp) = rrule(getproperty, F, p)
-                @test dp isa ChainRules.DNERule
+                @test dp isa ChainRules.DoesNotExistRule
                 Ȳ = randn(rng, size(Y)...)
                 X̄_ad = dX(dF(Ȳ))
                 X̄_fd = j′vp(central_fdm(5, 1), X->getproperty(svd(X), p), Ȳ, X)
@@ -45,7 +45,7 @@ using ChainRules: level2partition, level3partition, chol_blocked_rev, chol_unblo
             F, dX = rrule(cholesky, X)
             for p in [:U, :L]
                 Y, (dF, dp) = rrule(getproperty, F, p)
-                @test dp isa ChainRules.DNERule
+                @test dp isa ChainRules.DoesNotExistRule
                 Ȳ = (p === :U ? UpperTriangular : LowerTriangular)(randn(rng, size(Y)))
                 # NOTE: We're doing Nabla-style testing here and avoiding using the `j′vp`
                 # machinery from FiniteDifferences because that isn't set up to respect

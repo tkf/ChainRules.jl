@@ -3,12 +3,12 @@
 #####
 
 function rrule(::typeof(reshape), A::AbstractArray, dims::Tuple{Vararg{Int}})
-    return reshape(A, dims), (Rule(Ȳ->reshape(Ȳ, dims)), DNERule())
+    return reshape(A, dims), (Rule(Ȳ->reshape(Ȳ, dims)), DoesNotExistRule())
 end
 
 function rrule(::typeof(reshape), A::AbstractArray, dims::Int...)
     Y, (rule, _) = rrule(reshape, A, dims)
-    return Y, (rule, fill(DNERule(), length(dims))...)
+    return Y, (rule, fill(DoesNotExistRule(), length(dims))...)
 end
 
 #####
@@ -50,9 +50,9 @@ end
 #####
 
 function rrule(::typeof(fill), value::Any, dims::Tuple{Vararg{Int}})
-    return fill(value, dims), (Rule(sum), DNERule())
+    return fill(value, dims), (Rule(sum), DoesNotExistRule())
 end
 
 function rrule(::typeof(fill), value::Any, dims::Int...)
-    return fill(value, dims), (Rule(sum), ntuple(_->DNERule(), length(dims))...)
+    return fill(value, dims), (Rule(sum), ntuple(_->DoesNotExistRule(), length(dims))...)
 end

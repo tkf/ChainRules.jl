@@ -17,5 +17,5 @@ end
 function rrule(::typeof(mean), f, x::AbstractArray{<:Real})
     _, (_, dx) = rrule(sum, f, x)
     n = _denom(x, :)
-    return mean(f, x), (DNERule(), Rule(ȳ -> dx(ȳ) / n))
+    return mean(f, x), (DoesNotExistRule(), Rule(ȳ -> dx(ȳ) / n))
 end

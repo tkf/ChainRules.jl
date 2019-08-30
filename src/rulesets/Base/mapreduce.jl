@@ -12,7 +12,7 @@ function rrule(::typeof(map), f, xs...)
             end
         end
     end
-    return y, (DNERule(), ∂xs...)
+    return y, (DoesNotExistRule(), ∂xs...)
 end
 
 #####
@@ -34,7 +34,7 @@ for mf in (:mapreduce, :mapfoldl, :mapfoldr)
                 extern(∂xi(ȳi))
             end
         end
-        return y, (DNERule(), DNERule(), ∂x)
+        return y, (DoesNotExistRule(), DoesNotExistRule(), ∂x)
     end
     eval(Expr(:function, sig, body))
 end
@@ -49,7 +49,7 @@ rrule(::typeof(sum), x) = (sum(x), Rule(cast))
 
 function rrule(::typeof(sum), f, x::AbstractArray{<:Real}; dims=:)
     y, (_, _, ∂x) = rrule(mapreduce, f, Base.add_sum, x; dims=dims)
-    return y, (DNERule(), ∂x)
+    return y, (DoesNotExistRule(), ∂x)
 end
 
 function rrule(::typeof(sum), x::AbstractArray{<:Real}; dims=:)
@@ -60,5 +60,5 @@ end
 function rrule(::typeof(sum), ::typeof(abs2), x::AbstractArray{<:Real}; dims=:)
     y = sum(abs2, x; dims=dims)
     ∂x = Rule(ȳ -> 2ȳ .* x)
-    return y, (DNERule(), ∂x)
+    return y, (DoesNotExistRule(), ∂x)
 end

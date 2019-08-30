@@ -53,7 +53,7 @@
 @scalar_rule(transpose(x), One())
 
 @scalar_rule(abs(x), sign(x))
-@scalar_rule(rem2pi(x, r::RoundingMode), (One(), DNE()))
+@scalar_rule(rem2pi(x, r::RoundingMode), (One(), DoesNotExist()))
 
 @scalar_rule(+(x), One())
 @scalar_rule(-(x), -1)
